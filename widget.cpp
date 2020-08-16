@@ -10,9 +10,7 @@ Widget::Widget(QWidget *parent)
     , ui(new Ui::Widget)
 {
     ui->setupUi(this);
-    ui->pbCoffee->setEnabled(false);
-    ui->pbTea->setEnabled(false);
-    ui->pbMilk->setEnabled(false);
+    change_money(0);
 }
 
 Widget::~Widget()
@@ -24,14 +22,10 @@ void Widget::change_money(int diff) {
     Widget::money += diff;
     ui->lcdNumber->display(Widget::money);
 
-    if (Widget::money >= 100) ui->pbCoffee->setEnabled(true);
-    else ui->pbCoffee->setEnabled(false);
-
-    if (Widget::money >= 150) ui->pbTea->setEnabled(true);
-    else ui->pbTea->setEnabled(false);
-
-    if (Widget::money >= 200) ui->pbMilk->setEnabled(true);
-    else ui->pbMilk->setEnabled(false);
+    ui->pbReset->setEnabled(Widget::money != 0);
+    ui->pbCoffee->setEnabled(Widget::money >= 100);
+    ui->pbTea->setEnabled(Widget::money >= 150);
+    ui->pbMilk->setEnabled(Widget::money >= 200);
 }
 
 void Widget::on_pb10_clicked() {
@@ -67,15 +61,10 @@ void Widget::on_pbReset_clicked() {
     QMessageBox m;
     QString result = "";
     int table[4] = {500, 100, 50, 10};
-    int cursor = 0;
     int cnt[4] = {0, 0, 0, 0};
-    while (Widget::money) {
-        if (Widget::money < table[cursor]) {
-            cursor++;
-        } else {
-            cnt[cursor]++;
-            Widget::money -= table[cursor];
-        }
+    for (int i = 0; i < 4; i++) {
+        cnt[i] = Widget::money / table[i];
+        Widget::money -= cnt[i] * table[i];
     }
     result.append(QString::fromStdString("10원 : " + to_string(cnt[3]) + "\n"));
     result.append(QString::fromStdString("50원 : " + to_string(cnt[2]) + "\n"));
